@@ -1,7 +1,7 @@
-/***************************************************************************************/
+/****************************************************************************************/
 /*
- * motam_scanner
- * Created by Manuel Montenegro, Oct 8, 2018.
+ * MOTAM-Scanner
+ * Created by Manuel Montenegro, May 30, 2019.
  * Developed for MOTAM project.
  *
  *  This is a Bluetooth 5 scanner. This code reads every advertisement from MOTAM beacons
@@ -9,7 +9,7 @@
  *
  *  This code has been developed for Nordic Semiconductor nRF52840 PDK & nRF52840 dongle.
 */
-/***************************************************************************************/
+/****************************************************************************************/
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -17,6 +17,7 @@
 #include <stdio.h>
 
 #include "nrf.h"
+#include "nrf_error.h"
 #include "nrf_pwr_mgmt.h"
 #include "nrf_drv_usbd.h"
 #include "nrf_drv_clock.h"
@@ -162,25 +163,25 @@ static void usbd_start (void)
 // ======== BLE configuration ========
 
 // BLE configuration parameters
-#define APP_BLE_CONN_CFG_TAG		1						// Tag that identifies the BLE configuration of the SoftDevice.
-#define APP_BLE_OBSERVER_PRIO		3						// BLE observer priority of the application. There is no need to modify this value.
-#define APP_SOC_OBSERVER_PRIO		1						// SoC observer priority of the application. There is no need to modify this value.
+#define APP_BLE_CONN_CFG_TAG            1                                       // Tag that identifies the BLE configuration of the SoftDevice.
+#define APP_BLE_OBSERVER_PRIO           3                                       // BLE observer priority of the application. There is no need to modify this value.
+#define APP_SOC_OBSERVER_PRIO           1                                       // SoC observer priority of the application. There is no need to modify this value.
 
-#define SCAN_INTERVAL               0x0320					// Determines scan interval in units of 0.625 millisecond.
-#define SCAN_WINDOW                 0x0320					// Determines scan window in units of 0.625 millisecond.
-#define SCAN_DURATION				0x0000					// Duration of the scanning in units of 10 milliseconds. If set to 0x0000, scanning continues until it is explicitly disabled.
+#define SCAN_INTERVAL                   0x0320                                  // Determines scan interval in units of 0.625 millisecond.
+#define SCAN_WINDOW                     0x0320                                  // Determines scan window in units of 0.625 millisecond.
+#define SCAN_DURATION                   0x0000                                  // Duration of the scanning in units of 10 milliseconds. If set to 0x0000, scanning continues until it is explicitly disabled.
 
-static bool							m_mem_acc_in_progress;	// Flag to keep track of ongoing operations on persistent memory.
+static bool                             m_mem_acc_in_progress;                  // Flag to keep track of ongoing operations on persistent memory.
 
 static ble_gap_scan_params_t m_scan_param =					// Scan parameters requested for scanning and connection.
 {
-    .active        = 0x00,
-    .interval      = SCAN_INTERVAL,
-    .window        = SCAN_WINDOW,
-    .filter_policy = BLE_GAP_SCAN_FP_ACCEPT_ALL,
-    .timeout       = SCAN_DURATION,
-    .scan_phys     = BLE_GAP_PHY_CODED,						// Here you can select the PHY (BLE_GAP_PHY_CODED or BLE_GAP_PHY_1MBPS)
-    .extended      = 1,
+    .active                             = 0x00,
+    .interval                           = SCAN_INTERVAL,
+    .window                             = SCAN_WINDOW,
+    .filter_policy                      = BLE_GAP_SCAN_FP_ACCEPT_ALL,
+    .timeout                            = SCAN_DURATION,
+    .scan_phys                          = BLE_GAP_PHY_CODED,                    // Here you can select the PHY (BLE_GAP_PHY_CODED or BLE_GAP_PHY_1MBPS)
+    .extended                           = 1,
 };
 
 // Scanning Module instance.
@@ -204,49 +205,48 @@ static void scan_evt_handler(scan_evt_t const * p_scan_evt)
         // No whitelist set up, so the filter is not matched for the scan data.
         case NRF_BLE_SCAN_EVT_NOT_FOUND:
         {
-        	int i;											// Index for loop
-        	uint8_t * p_data = p_scan_evt->params.p_not_found->data.p_data;	// Pointer to packet data
-			int data_len = p_scan_evt->params.p_not_found->data.len;	// Packet data length
+            int i;                                                              // Index for loop
+            uint8_t * p_data = p_scan_evt->params.p_not_found->data.p_data;     // Pointer to packet data
+            int data_len = p_scan_evt->params.p_not_found->data.len;            // Packet data length
 
-			// Filtering MOTAM advertisements
-        	if (p_data[1] == 0xFF && p_data[2] == 0xBE && p_data [3] == 0xDE)
-        	{
-				// Conversion from byte string to hexadecimal char string
-				for (i = 0; i < data_len; i++ )
-				{
-					sprintf(&m_tx_buffer[i*2], "%02x", p_data[i]);
-				}
-				sprintf(&m_tx_buffer[data_len*2], "\r\n");
+            // Filtering MOTAM advertisements
+            if (p_data[1] == 0xFF && p_data[2] == 0xBE && p_data [3] == 0x5E)
+            {
+                // Conversion from byte string to hexadecimal char string
+                for (i = 0; i < data_len; i++ )
+                {
+                    sprintf(&m_tx_buffer[i*2], "%02x", p_data[i]);
+                }
+                sprintf(&m_tx_buffer[data_len*2], "\r\n");
 
-				// Send the hexadecimal char string by serial port
-				app_usbd_cdc_acm_write(&m_app_cdc_acm, m_tx_buffer, (data_len*2)+2);
-        	}
+                // Send the hexadecimal char string by serial port
+                app_usbd_cdc_acm_write(&m_app_cdc_acm, m_tx_buffer, (data_len*2)+2);
+            }
         }
         break;
 
         default:
-        	break;
+        break;
     }
 }
 
 // BLE events handler
 static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
 {
-
     switch (p_ble_evt->header.evt_id)
     {
         case BLE_GAP_EVT_ADV_REPORT:
-        	break;
+        break;
 
         default:
-            break;
+        break;
     }
 }
 
 // SoftDevice SoC event handler.
 static void soc_evt_handler(uint32_t evt_id, void * p_context)
 {
-	switch (evt_id)
+    switch (evt_id)
     {
         case NRF_EVT_FLASH_OPERATION_SUCCESS:
         /* fall through */
@@ -257,11 +257,11 @@ static void soc_evt_handler(uint32_t evt_id, void * p_context)
                 m_mem_acc_in_progress = false;
                 scan_start();
             }
-            break;
+        break;
 
         default:
             // No implementation needed.
-            break;
+        break;
     }
 }
 
@@ -335,7 +335,7 @@ static void log_init(void)
 // Clock initialization
 static void clock_init (void)
 {
-	ret_code_t err_code = nrf_drv_clock_init();
+    ret_code_t err_code = nrf_drv_clock_init();
     APP_ERROR_CHECK(err_code);
 
     nrf_drv_clock_lfclk_request(NULL);
@@ -374,29 +374,29 @@ static void idle_state_handle(void)
 int main(void)
 {
 
-	// Initialize.
-	log_init();
-	timer_init();
-	clock_init();
-	usbd_init();
-	power_management_init();
-	ble_stack_init();
-	scan_init();
+    // Initialize.
+    log_init();
+    timer_init();
+    clock_init();
+    usbd_init();
+    power_management_init();
+    ble_stack_init();
+    scan_init();
 
-	scan_start();
-	usbd_start();
+    scan_start();
+    usbd_start();
 
     // Start execution.
     NRF_LOG_RAW_INFO(    "  -------------\r\n");
     NRF_LOG_RAW_INFO(	 "| MOTAM scanner |");
     NRF_LOG_RAW_INFO("\r\n  -------------\r\n");
 
-	for (;;)
-	{
-		while (app_usbd_event_queue_process())
-		{
-			// While there are USBD events in queue...
-		}
-		idle_state_handle();
-	}
+    for (;;)
+    {
+        while (app_usbd_event_queue_process())
+        {
+            // While there are USBD events in queue...
+        }
+        idle_state_handle();
+    }
 }

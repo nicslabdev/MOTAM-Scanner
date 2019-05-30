@@ -2,7 +2,7 @@
 
 This is a Bluetooth 5 advertisements' scanner developed for [nRF52840 Dongle](https://www.nordicsemi.com/eng/Products/nRF52840-Dongle) and [nRF52840 Development Kit](https://www.nordicsemi.com/eng/Products/nRF52840-DK).
 
-This application captures advertisements with extended advertising characteristic activated and BT5 PHYs: 2Mbps, 1Mbps and PHY Coded.
+This application captures advertisements with extended advertising and longe range characteristic activated.
 
 The application sends the captured advertisements through serial port.
 
@@ -11,8 +11,8 @@ This repository is part of [MOTAM project](https://www.nics.uma.es/projects/mota
 ## Requeriments
 
 This project uses:
--   nRF5 SDK version 15.2.0
--   S140 SoftDevice v6.1.0 API
+-   nRF5 SDK version 15.3.0
+-   S140 SoftDevice v6.1.1 API
 -   nRF52840 Dongle (PCA10059) or nRF52840 PDK (PCA10056)
 
 ## Get started
@@ -47,8 +47,9 @@ In case you are working on nRF52840 Development Kit:
 
 ## Compiling the applications
 
-If you want to compile the project, you can use GCC and Eclipse. Put the downloaded folder into 
+If you modify the code and you need to recompile the code, put the folders inside nRF52 into
 	
-	\nRF5_SDK_15.2.0\examples\ble_central folder.
+	\nRF5_SDK_15.3.0\MOTAM_apps folder.
 	
-More info about using GCC and Eclipse [here](https://devzone.nordicsemi.com/tutorials/b/getting-started/posts/development-with-gcc-and-eclipse).
+
+There are several ways for developing code in nRF52, we have done this with SEGGER Embedded Studio for ARM V4.12.
