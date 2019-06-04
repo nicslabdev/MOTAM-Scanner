@@ -212,15 +212,17 @@ static void scan_evt_handler(scan_evt_t const * p_scan_evt)
             // Filtering MOTAM advertisements
             if (p_data[1] == 0xFF && p_data[2] == 0xBE && p_data [3] == 0x5E)
             {
+                sprintf(m_tx_buffer,"1-");
+
                 // Conversion from byte string to hexadecimal char string
                 for (i = 0; i < data_len; i++ )
                 {
-                    sprintf(&m_tx_buffer[i*2], "%02x", p_data[i]);
+                    sprintf(&m_tx_buffer[(i*2)+2], "%02x", p_data[i]);
                 }
-                sprintf(&m_tx_buffer[data_len*2], "\r\n");
+                sprintf(&m_tx_buffer[(i*2)+2], "\r\n");
 
                 // Send the hexadecimal char string by serial port
-                app_usbd_cdc_acm_write(&m_app_cdc_acm, m_tx_buffer, (data_len*2)+2);
+                app_usbd_cdc_acm_write(&m_app_cdc_acm, m_tx_buffer, (i*2)+2+2);
             }
         }
         break;
