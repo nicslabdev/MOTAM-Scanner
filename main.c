@@ -1,7 +1,7 @@
 /****************************************************************************************/
 /*
  * MOTAM-Scanner
- * Created by Manuel Montenegro, May 30, 2019.
+ * Created by Manuel Montenegro, Jun 14, 2019.
  * Developed for MOTAM project.
  *
  *  This is a Bluetooth 5 scanner. This code reads every advertisement from MOTAM beacons
@@ -193,6 +193,7 @@ static void scan_start(void);
 // Function for handling Scanning Module events
 static void scan_evt_handler(scan_evt_t const * p_scan_evt)
 {
+    NRF_LOG_RAW_INFO("PRUEBA\r\n");
 
     switch(p_scan_evt->scan_evt_id)
     {
@@ -205,6 +206,7 @@ static void scan_evt_handler(scan_evt_t const * p_scan_evt)
         // No whitelist set up, so the filter is not matched for the scan data.
         case NRF_BLE_SCAN_EVT_NOT_FOUND:
         {
+            
             int i;                                                              // Index for loop
             uint8_t * p_data = p_scan_evt->params.p_not_found->data.p_data;     // Pointer to packet data
             int data_len = p_scan_evt->params.p_not_found->data.len;            // Packet data length
@@ -215,7 +217,7 @@ static void scan_evt_handler(scan_evt_t const * p_scan_evt)
                 sprintf(m_tx_buffer,"1-");
 
                 // Conversion from byte string to hexadecimal char string
-                for (i = 0; i < data_len; i++ )
+                for (i = 0; i < data_len-64; i++ )
                 {
                     sprintf(&m_tx_buffer[(i*2)+2], "%02x", p_data[i]);
                 }
