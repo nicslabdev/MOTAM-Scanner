@@ -53,3 +53,7 @@ If you modify the code and you need to recompile the code, put the folders insid
 	
 
 There are several ways for developing code in nRF52, we have done this with SEGGER Embedded Studio for ARM V4.12.
+
+## To Do
+
+- Integration of cryptographic signature verification
